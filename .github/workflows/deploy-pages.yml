@@ -28,6 +28,10 @@ jobs:
       - name: Write runtime config
         shell: bash
         run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            echo "Supabase secrets are not set; using committed public/config.js."
+            exit 0
+          fi
           cat > public/config.js <<'CONFIG'
           window.PRO_SOL_DB_CONFIG = {
             supabaseUrl: "${{ secrets.SUPABASE_URL }}",
