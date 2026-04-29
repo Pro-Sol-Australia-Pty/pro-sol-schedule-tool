@@ -2256,13 +2256,19 @@ function setCloudButtonsBusy(isBusy){
     if(btn) btn.disabled = !!isBusy;
   });
 }
-async function saveCloudSchedule(){
+function syncCloudAfterLocalSave(showMessages = false){
+  if(!cloudSyncConfigured()) return;
+  saveCloudSchedule({skipTableSave:true, silent:!showMessages});
+}
+async function saveCloudSchedule(options = {}){
+  const skipTableSave = !!options.skipTableSave;
+  const silent = !!options.silent;
   const client = getCloudClient();
   if(!client){
-    toast('Cloud sync is not configured yet');
-    return;
+    if(!silent) toast('Cloud sync is not configured yet');
+    return false;
   }
-  if(dirty && !saveTableChanges(false)) return;
+  if(!skipTableSave && dirty && !saveTableChanges(false, {syncCloud:false})) return false;
   setCloudButtonsBusy(true);
   updateStatus('Saving to cloud...');
   try{
@@ -2272,23 +2278,26 @@ async function saveCloudSchedule(){
     if(error) throw error;
     dirty = false;
     updateStatus('Saved locally and to cloud');
-    toast('Cloud schedule saved');
+    if(!silent) toast('Changes saved to cloud');
+    return true;
   }catch(err){
     console.error(err);
     updateStatus('Cloud save failed');
-    alert(`Cloud save failed: ${err.message || err}`);
+    if(!silent) alert(`Cloud save failed: ${err.message || err}`);
+    return false;
   }finally{
     setCloudButtonsBusy(false);
   }
 }
-async function loadCloudSchedule(){
+async function loadCloudSchedule(options = {}){
+  const silent = !!options.silent;
   const client = getCloudClient();
   if(!client){
-    toast('Cloud sync is not configured yet');
-    return;
+    if(!silent) toast('Cloud sync is not configured yet');
+    return false;
   }
   setCloudButtonsBusy(true);
-  updateStatus('Loading cloud schedule...');
+  updateStatus('Loading shared schedule...');
   try{
     const { data, error } = await client
       .from('schedules')
@@ -2298,8 +2307,8 @@ async function loadCloudSchedule(){
     if(error) throw error;
     if(!data){
       updateStatus('No cloud schedule found');
-      toast('Use Save Cloud to create the shared schedule');
-      return;
+      if(!silent) toast('Use Save Table Changes to create the shared schedule');
+      return false;
     }
     tasks = normalizeTasks(Array.isArray(data.tasks) ? data.tasks : initialTasks.map(t => ({...t})));
     customCategories = Array.isArray(data.custom_categories) ? data.custom_categories.filter(Boolean) : [];
@@ -2311,11 +2320,13 @@ async function loadCloudSchedule(){
     renderDashboard();
     const stamp = data.updated_at ? new Date(data.updated_at).toLocaleString('en-AU') : 'cloud';
     updateStatus(`Loaded cloud schedule (${stamp})`);
-    toast('Cloud schedule loaded');
+    if(!silent) toast('Cloud schedule loaded');
+    return true;
   }catch(err){
     console.error(err);
     updateStatus('Cloud load failed');
-    alert(`Cloud load failed: ${err.message || err}`);
+    if(!silent) alert(`Cloud load failed: ${err.message || err}`);
+    return false;
   }finally{
     setCloudButtonsBusy(false);
   }
@@ -2326,9 +2337,9 @@ function initCloudSync(){
   const saveBtn = el('btn-cloud-save');
   [loadBtn, saveBtn].forEach(btn => {
     if(!btn) return;
-    btn.hidden = !ready;
+    btn.hidden = true;
     btn.title = ready
-      ? `Shared schedule: ${CLOUD_SCHEDULE_SLUG}`
+      ? `Cloud sync is handled by Save Table Changes. Shared schedule: ${CLOUD_SCHEDULE_SLUG}`
       : 'Configure public/config.js or GitHub repository secrets to enable cloud sync';
   });
   loadBtn?.addEventListener('click', loadCloudSchedule);
@@ -3031,6 +3042,7 @@ function applyScheduleLogic(){
   const previous = cloneTasksForLogic(tasks);
   const moved = applySuccessorLogicFromPrevious(previous);
   persist();
+  syncCloudAfterLocalSave(false);
   renderTable();
   renderGantt();
   renderDashboard();
@@ -3038,7 +3050,7 @@ function applyScheduleLogic(){
   return moved;
 }
 
-function saveTableChanges(showMsg = true){
+function saveTableChanges(showMsg = true, options = {}){
   const previousTasks = cloneTasksForLogic(tasks);
   const rows = [...el('schedule-tbody').querySelectorAll('tr[data-row-type="activity"]')];
   const usedIds = new Set();
@@ -3069,7 +3081,12 @@ function saveTableChanges(showMsg = true){
   renderTable();
   renderGantt();
   renderDashboard();
-  if(showMsg) toast(shifted ? `Table saved. ${shifted} successor activit${shifted===1?'y':'ies'} shifted from predecessor logic.` : 'Table saved and Gantt updated');
+  if(cloudSyncConfigured() && options.syncCloud !== false){
+    if(showMsg) toast(shifted ? `Table saved. ${shifted} successor activit${shifted===1?'y':'ies'} shifted; syncing cloud.` : 'Table saved. Syncing cloud.');
+    saveCloudSchedule({skipTableSave:true, silent:!showMsg});
+  }else if(showMsg){
+    toast(shifted ? `Table saved. ${shifted} successor activit${shifted===1?'y':'ies'} shifted from predecessor logic.` : 'Table saved and Gantt updated');
+  }
   return true;
 }
 
@@ -3324,6 +3341,7 @@ function saveEditedActivity(){
   if(t.parentId){ tableCollapsedKeys.delete(rowKeyForActivity(t.parentId)); ganttCollapsedKeys.delete(rowKeyForActivity(t.parentId)); }
   const shifted = applySuccessorLogicFromPrevious(previousTasks);
   persist();
+  syncCloudAfterLocalSave(false);
   renderTable();
   renderGantt();
   renderDashboard();
@@ -3406,6 +3424,7 @@ function moveActivityToRow(dragId, targetRow){
   selectedId = task.id;
   tasks = normalizeTasks(tasks);
   persist();
+  syncCloudAfterLocalSave(false);
   renderTable();
   renderGantt();
   renderDashboard();
@@ -3422,6 +3441,7 @@ function handleAddActivitySubmit(ev){
     if(!finalName) return;
     selectedId = null;
     persist();
+    syncCloudAfterLocalSave(false);
     renderTable();
     renderGantt();
     renderDashboard();
@@ -3442,6 +3462,7 @@ function handleAddActivitySubmit(ev){
     ganttCollapsedKeys.delete(`cat:${finalCat}`);
     selectedId = null;
     persist();
+    syncCloudAfterLocalSave(false);
     renderTable();
     renderGantt();
     closeAddActivityModal();
@@ -3506,6 +3527,7 @@ function handleAddActivitySubmit(ev){
   selectedId = id;
   applySuccessorLogicFromPrevious(previousTasks);
   persist();
+  syncCloudAfterLocalSave(false);
   renderTable();
   renderGantt();
   renderDashboard();
@@ -4110,6 +4132,7 @@ document.addEventListener('mouseup', () => {
   dragging = null;
   const shifted = applySuccessorLogicFromPrevious(previousTasks);
   persist();
+  syncCloudAfterLocalSave(false);
   renderTable();
   renderGantt();
   renderDashboard();
@@ -4320,6 +4343,7 @@ async function importFile(file){
     pruneUnusedCustomCategories(false);
     selectedId = null;
     persist();
+    syncCloudAfterLocalSave(false);
     renderTable();
     renderGantt();
     toast(`Imported ${tasks.length} activities`);
@@ -4962,7 +4986,12 @@ try{
   renderGantt();
   renderDashboard();
   const startupStatus = startupShifted ? `Loaded and aligned ${startupShifted} successor activit${startupShifted===1?'y':'ies'}` : (loadStoredTasks() ? 'Loaded saved browser data' : 'Ready');
-  updateStatus(cloudSyncConfigured() ? `${startupStatus}; cloud sync available` : startupStatus);
+  if(cloudSyncConfigured()){
+    updateStatus(`${startupStatus}; loading shared schedule...`);
+    loadCloudSchedule({silent:true});
+  }else{
+    updateStatus(startupStatus);
+  }
 }catch(err){
   console.error(err);
   try{
