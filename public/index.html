@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro-Sol Schedule Tool v2.40</title>
+<title>Pro-Sol Schedule Tool v2.46</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
@@ -59,6 +59,20 @@ button{border:none;cursor:pointer;}
 .btn.ghost{background:transparent;}
 .btn.danger{color:#9E321E;border-color:#E6BAAD;background:#FFF7F4;}
 .btn.small{font-size:11px;padding:6px 9px;border-radius:8px;}
+body.viewer-mode button,
+body.viewer-mode select,
+body.viewer-mode input,
+body.viewer-mode textarea{cursor:default!important;}
+body.viewer-mode button:disabled{pointer-events:none;opacity:.58;}
+body.viewer-mode .btn.primary:disabled{background:var(--evergreen);border-color:var(--evergreen);color:#fff;}
+body.viewer-mode .tab:disabled{opacity:.7;}
+body.viewer-mode input:disabled,
+body.viewer-mode select:disabled,
+body.viewer-mode textarea:disabled{opacity:1;color:var(--ink);-webkit-text-fill-color:var(--ink);background:transparent;}
+body.viewer-mode .schedule-table input:disabled,
+body.viewer-mode .schedule-table select:disabled,
+body.viewer-mode .schedule-table textarea:disabled{border-color:transparent;box-shadow:none;}
+body.viewer-mode .drag-grip{display:none;}
 .status{font-size:11px;color:var(--muted);font-weight:700;}
 .status strong{color:var(--evergreen);}
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(170px,1fr));gap:12px;margin-bottom:16px;}
@@ -536,6 +550,7 @@ body.table-active #panel-table .table-shell{flex:1 1 auto;min-height:0;max-heigh
     <div class="brand-right">
       <div class="qr-card"><img alt="Pro-Sol QR code" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOgAAADoCAIAAABqyz8vAAAEO0lEQVR4nO3dMU5cMRRA0RCxgSyVlbBGSqrZQoqkdWFky74z59Tw+cxcuXiy7LfH99cvqPl9+gXgJ4RLknBJEi5JwiVJuCQJlyThkiRckoRLknBJEi5JwiVJuCQJl6T32V/48/G54z2We3x+TP386P8aPWf2c5h9zuz7jzzr92XFJUm4JAmXJOGSJFyShEuScEmanuOOrJo7zpqdU+6em87+3VXPmX3/yvc1YsUlSbgkCZck4ZIkXJKES5JwSVo2xx1ZNberzx137+tdpfJ9WXFJEi5JwiVJuCQJlyThkiRckrbPcStOzWt3n//wrKy4JAmXJOGSJFyShEuScEkSLkkvN8c9NWdlLSsuScIlSbgkCZck4ZIkXJKES9L2OW5ln+iqcw9WPX/087s/z8r3ZcUlSbgkCZck4ZIkXJKES5JwSVo2x63sQ919T9juz8G+4X+suCQJlyThkiRckoRLknBJEi5J03Pcyn7NVZ71frU6Ky5JwiVJuCQJlyThkiRckoRL0tvj+2vqF267Z2v2fW7bh7rqc5v9v07t3131/1pxSRIuScIlSbgkCZck4ZIkXJKWzXFHVs0Lbzs3oD4nPvWe5ri8NOGSJFyShEuScEkSLknCJWn7HHdk91x29/7gyhx091x81Zx49n2suCQJlyThkiRckoRLknBJEi5Jy+45G9m9H3T2+c86Px793VPnXez+3q24JAmXJOGSJFyShEuScEkSLknL5riz88JV89fbzmGonx88ctt9aVZckoRLknBJEi5JwiVJuCQJl6TMuQqzTp2Pu0rlHOJTz7fikiRckoRLknBJEi5JwiVJuCQd24976rxV5y387Dkjp+bHVlyShEuScEkSLknCJUm4JAmXpO3n487OBSv3co3sntfedt7wqc/ZikuScEkSLknCJUm4JAmXJOGStH2OO3LbPtHZ56yaT9/2d0/tk55lxSVJuCQJlyThkiRckoRLknBJmj4ft+62cwNO3es2cts9bSNWXJKES5JwSRIuScIlSbgkCZek6f24u+8PW2U0dzw17zw1H71tLut8XF6acEkSLknCJUm4JAmXJOGSdOyes1VWzZVP3aO2ey5+2/fiXAVemnBJEi5JwiVJuCQJlyThknTdPWcj9fvDds93T+2TPnWPnRWXJOGSJFyShEuScEkSLknCJenYPWe3WTVfnJ3L3nZe76xT+4ytuCQJlyThkiRckoRLknBJEi5J5rj/nZpH7rb7PODZv7vq87TikiRckoRLknBJEi5JwiVJuCRtn+OeOp91ld33lu0+P2HVPPW279GKS5JwSRIuScIlSbgkCZck4ZK0bI5b2be66pza3ftNd7/PbeczzLLikiRckoRLknBJEi5JwiVJuCS9Pb6/Tr8DTLPikiRckoRLknBJEi5JwiVJuCQJlyThkiRckoRLknBJEi5JwiVJuCT9BVtLhd2u5qAIAAAAAElFTkSuQmCC"><span>Scan for Pro-Sol</span></div>
       <button class="btn primary" id="btn-export-html">⬇ Save Tool</button>
+      <button class="btn" id="btn-export-viewer" type="button">Generate Viewer Copy</button>
     </div>
   </header>
 
@@ -1631,7 +1646,7 @@ body.table-active #panel-table .table-shell{flex:1 1 auto;min-height:0;max-heigh
             <li>Use the <strong>Columns</strong> menu in the Table / Import tab to hide or show optional fields. The default view uses the same columns as the Interactive Gantt.</li>
           </ul>
           <h3>Save behaviour</h3>
-          <p>Click <strong>Save Table Changes</strong> after editing the table. The Gantt redraws from the table data, updates dependency arrows from the predecessor and relationship columns, and stores the latest version in the browser. Use <strong>Save Tool</strong> to export a self-contained HTML copy with the current schedule embedded. Use the <strong>Dashboard</strong> tab for the recommended executive schedule visuals: KPI cards, progress health, category workload, milestone timeline, critical path watchlist and upcoming 90-day activities. Use <strong>Export</strong> to download Excel, PDF, or PowerPoint outputs from the current schedule. PDF and PowerPoint exports include a landscape snapshot of the current Interactive Gantt view.</p>
+          <p>Click <strong>Save Table Changes</strong> after editing the table. The Gantt redraws from the table data, updates dependency arrows from the predecessor and relationship columns, and stores the latest version in the browser. Use <strong>Save Tool</strong> to export a self-contained HTML copy with the current schedule embedded. Use <strong>Generate Viewer Copy</strong> to export a read-only HTML copy that keeps the current view visible while disabling editing, filters, imports, exports, zoom and other controls. Use the <strong>Dashboard</strong> tab for the recommended executive schedule visuals: KPI cards, progress health, category workload, milestone timeline, critical path watchlist and upcoming 90-day activities. Use <strong>Export</strong> to download Excel, PDF, or PowerPoint outputs from the current schedule. PDF and PowerPoint exports include a landscape snapshot of the current Interactive Gantt view.</p>
         </div>
         <div>
           <table class="template-table">
@@ -1849,6 +1864,7 @@ const TEMPLATE_HEADERS = ["Activity ID","Parent ID","WBS Level","Category","Acti
 const STORE_KEY = "prosol_schedule_tool_tasks_v228_revA";
 const CATEGORY_STORE_KEY = "prosol_schedule_tool_custom_categories_v228_revA";
 const CATEGORY_ORDER_STORE_KEY = "prosol_schedule_tool_category_order_v228_revA";
+const VIEWER_MODE = document.body?.dataset.viewerCopy === 'true';
 const CLOUD_CONFIG = window.PRO_SOL_DB_CONFIG || {};
 const CLOUD_SCHEDULE_SLUG = String(CLOUD_CONFIG.scheduleSlug || 'default').trim() || 'default';
 let initialTasks = JSON.parse(document.getElementById('initial-data').textContent);
@@ -1970,13 +1986,14 @@ const fmtDate = s => {
   return d ? d.toLocaleDateString('en-AU',{day:'2-digit',month:'short',year:'numeric'}) : '';
 };
 function loadDateFilterState(){
+  if(VIEWER_MODE) return {table:{...DEFAULT_DATE_FILTER}, gantt:{...DEFAULT_DATE_FILTER}};
   try{
     const raw = localStorage.getItem(DATE_FILTER_STORE_KEY);
     const data = raw ? JSON.parse(raw) : {};
     return {table:{...DEFAULT_DATE_FILTER,...(data.table||{})}, gantt:{...DEFAULT_DATE_FILTER,...(data.gantt||{})}};
   }catch(e){ return {table:{...DEFAULT_DATE_FILTER}, gantt:{...DEFAULT_DATE_FILTER}}; }
 }
-function persistDateFilterState(){ try{ localStorage.setItem(DATE_FILTER_STORE_KEY, JSON.stringify({table:tableDateFilter, gantt:ganttDateFilter})); }catch(e){} }
+function persistDateFilterState(){ if(VIEWER_MODE) return; try{ localStorage.setItem(DATE_FILTER_STORE_KEY, JSON.stringify({table:tableDateFilter, gantt:ganttDateFilter})); }catch(e){} }
 function startOfWeek(d){ const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); const day=(x.getDay()+6)%7; x.setDate(x.getDate()-day); return x; }
 function endOfDay(d){ return new Date(d.getFullYear(),d.getMonth(),d.getDate(),23,59,59,999); }
 function endOfMonth(y,m){ return new Date(y,m+1,0); }
@@ -2165,6 +2182,7 @@ function rowKeyForMilestoneMirror(id){
 }
 
 function loadStoredTasks(){
+  if(VIEWER_MODE) return null;
   try{
     const raw = localStorage.getItem(STORE_KEY);
     if(!raw) return null;
@@ -2173,6 +2191,7 @@ function loadStoredTasks(){
   }catch(e){return null;}
 }
 function loadStoredCategories(){
+  if(VIEWER_MODE) return null;
   try{
     const raw = localStorage.getItem(CATEGORY_STORE_KEY);
     if(!raw) return null;
@@ -2181,6 +2200,7 @@ function loadStoredCategories(){
   }catch(e){return null;}
 }
 function loadStoredCategoryOrder(){
+  if(VIEWER_MODE) return null;
   try{
     const raw = localStorage.getItem(CATEGORY_ORDER_STORE_KEY);
     if(!raw) return null;
@@ -2189,9 +2209,11 @@ function loadStoredCategoryOrder(){
   }catch(e){return null;}
 }
 function persistCustomCategories(){
+  if(VIEWER_MODE) return;
   try{ localStorage.setItem(CATEGORY_STORE_KEY, JSON.stringify(customCategories)); }catch(e){}
 }
 function persistCategoryOrder(){
+  if(VIEWER_MODE) return;
   try{
     categoryOrder = reconcileCategoryOrder(categoryOrder);
     localStorage.setItem(CATEGORY_ORDER_STORE_KEY, JSON.stringify(categoryOrder));
@@ -2215,6 +2237,11 @@ function addCustomCategory(name){
   return finalName;
 }
 function persist(){
+  if(VIEWER_MODE){
+    dirty = false;
+    updateStatus('Viewer copy - read only');
+    return;
+  }
   localStorage.setItem(STORE_KEY, JSON.stringify(tasks));
   persistCustomCategories();
   persistCategoryOrder();
@@ -2229,7 +2256,7 @@ function updateStatus(msg){
   el('table-status').innerHTML = dirty ? `<strong>${esc(msg)}</strong>` : esc(msg);
 }
 function cloudSyncConfigured(){
-  return !!(CLOUD_CONFIG.supabaseUrl && CLOUD_CONFIG.supabaseAnonKey && window.supabase?.createClient);
+  return !VIEWER_MODE && !!(CLOUD_CONFIG.supabaseUrl && CLOUD_CONFIG.supabaseAnonKey && window.supabase?.createClient);
 }
 function getCloudClient(){
   if(!cloudSyncConfigured()) return null;
@@ -2248,11 +2275,9 @@ function currentSchedulePayload(){
     updated_at: new Date().toISOString()
   };
 }
-function setCloudButtonsBusy(isBusy){
-  ['btn-cloud-load','btn-cloud-save'].forEach(id => {
-    const btn = el(id);
-    if(btn) btn.disabled = !!isBusy;
-  });
+function setCloudSyncBusy(isBusy){
+  const btn = el('btn-save-table');
+  if(btn) btn.disabled = !!isBusy;
 }
 function syncCloudAfterLocalSave(showMessages = false){
   if(!cloudSyncConfigured()) return;
@@ -2267,7 +2292,7 @@ async function saveCloudSchedule(options = {}){
     return false;
   }
   if(!skipTableSave && dirty && !saveTableChanges(false, {syncCloud:false})) return false;
-  setCloudButtonsBusy(true);
+  setCloudSyncBusy(true);
   updateStatus('Saving to cloud...');
   try{
     const { error } = await client
@@ -2284,7 +2309,7 @@ async function saveCloudSchedule(options = {}){
     if(!silent) alert(`Cloud save failed: ${err.message || err}`);
     return false;
   }finally{
-    setCloudButtonsBusy(false);
+    setCloudSyncBusy(false);
   }
 }
 async function loadCloudSchedule(options = {}){
@@ -2294,7 +2319,7 @@ async function loadCloudSchedule(options = {}){
     if(!silent) toast('Cloud sync is not configured yet');
     return false;
   }
-  setCloudButtonsBusy(true);
+  setCloudSyncBusy(true);
   updateStatus('Loading shared schedule...');
   try{
     const { data, error } = await client
@@ -2326,22 +2351,12 @@ async function loadCloudSchedule(options = {}){
     if(!silent) alert(`Cloud load failed: ${err.message || err}`);
     return false;
   }finally{
-    setCloudButtonsBusy(false);
+    setCloudSyncBusy(false);
   }
 }
 function initCloudSync(){
-  const ready = cloudSyncConfigured();
-  const loadBtn = el('btn-cloud-load');
-  const saveBtn = el('btn-cloud-save');
-  [loadBtn, saveBtn].forEach(btn => {
-    if(!btn) return;
-    btn.hidden = true;
-    btn.title = ready
-      ? `Cloud sync is handled by Save Table Changes. Shared schedule: ${CLOUD_SCHEDULE_SLUG}`
-      : 'Configure public/config.js or GitHub repository secrets to enable cloud sync';
-  });
-  loadBtn?.addEventListener('click', loadCloudSchedule);
-  saveBtn?.addEventListener('click', saveCloudSchedule);
+  const btn = el('btn-save-table');
+  if(btn && cloudSyncConfigured()) btn.title = `Save locally and to shared schedule: ${CLOUD_SCHEDULE_SLUG}`;
 }
 function toast(msg){
   const t = el('toast');
@@ -2352,6 +2367,7 @@ function toast(msg){
 }
 
 function loadTableColumnState(){
+  if(VIEWER_MODE) return Object.fromEntries(TABLE_COLUMNS.map(c => [c.key, c.defaultVisible !== false]));
   try{
     const raw = localStorage.getItem(TABLE_COLUMN_STORE_KEY);
     if(raw){
@@ -2362,6 +2378,7 @@ function loadTableColumnState(){
   return Object.fromEntries(TABLE_COLUMNS.map(c => [c.key, c.defaultVisible !== false]));
 }
 function persistTableColumnState(){
+  if(VIEWER_MODE) return;
   try{ localStorage.setItem(TABLE_COLUMN_STORE_KEY, JSON.stringify(tableColumnState)); }catch(e){}
 }
 function isColumnVisible(key){
@@ -2377,6 +2394,7 @@ function renderColumnMenu(){
       <input type="checkbox" data-col-toggle="${esc(c.key)}" ${isColumnVisible(c.key) ? 'checked' : ''} ${c.locked ? 'disabled' : ''}>
       <span>${esc(c.label)}</span>
     </label>`).join('');
+  if(VIEWER_MODE) return;
   menu.querySelectorAll('[data-col-toggle]').forEach(cb => cb.addEventListener('change', e => {
     const key = e.target.dataset.colToggle;
     tableColumnState[key] = e.target.checked;
@@ -2535,9 +2553,10 @@ function activateTab(tabName){
 function initTabs(){
   document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
     activateTab(btn.dataset.tab);
-    if(history.replaceState) history.replaceState(null, '', '#' + btn.dataset.tab);
+    if(!VIEWER_MODE && history.replaceState) history.replaceState(null, '', '#' + btn.dataset.tab);
   }));
-  const initialTab = (location.hash || '').replace('#','');
+  const currentTab = document.querySelector('.tab.on')?.dataset.tab || document.querySelector('.panel.on')?.id?.replace('panel-','') || '';
+  const initialTab = VIEWER_MODE ? (document.body.dataset.viewerTab || currentTab) : (location.hash || '').replace('#','');
   if(initialTab && el(`panel-${initialTab}`)) activateTab(initialTab);
   else activateTab('table');
 }
@@ -4004,7 +4023,8 @@ function renderGantt(){
       if(bw > 42) text(`${daysBetween(r.start,r.end)}d`,{x:x1+bw/2,y:by+bh/2+4,'text-anchor':'middle','font-size':10,'font-weight':800,fill:'#fff'},group);
     }
     if(r.cp && r.rowType === 'activity') mk('rect',{x:leftW-5,y:y+6,width:3,height:rowH-12,fill:BRAND.terracotta,rx:2});
-    const hit = mk('rect',{x:0,y,width:W,height:rowH,fill:'transparent',cursor:'pointer'});
+    const hit = mk('rect',{x:0,y,width:W,height:rowH,fill:'transparent',cursor:VIEWER_MODE?'default':'pointer'});
+    if(VIEWER_MODE) return;
     if(r.rowType === 'activity'){
       const t = r.task;
       const show = ev => { selectedId = t.id; positionTooltip(ev,t); el('tooltip').style.opacity = 1; };
@@ -4113,6 +4133,7 @@ function selectActivity(id){
 }
 
 document.addEventListener('mousemove', ev => {
+  if(VIEWER_MODE) return;
   if(!dragging) return;
   const dx = ev.clientX - dragging.startX;
   const dd = Math.round(dx / dragging.pxPerDay);
@@ -4125,6 +4146,7 @@ document.addEventListener('mousemove', ev => {
   setDirty('Gantt dates shifted');
 });
 document.addEventListener('mouseup', () => {
+  if(VIEWER_MODE) return;
   if(!dragging) return;
   const previousTasks = dragging.origTasks || cloneTasksForLogic(tasks);
   dragging = null;
@@ -4935,19 +4957,283 @@ async function exportPPTXDeck(){
   }
 }
 
-function exportHTML(){
+function currentActiveTabName(){
+  const activeTab = document.querySelector('.tab.on')?.dataset.tab;
+  if(activeTab) return activeTab;
+  const activePanel = document.querySelector('.panel.on')?.id || '';
+  return activePanel.replace(/^panel-/,'') || 'table';
+}
+function htmlAttrEscape(value){
+  return String(value ?? '').replace(/[&"]/g, c => ({'&':'&amp;','"':'&quot;'}[c]));
+}
+function upsertBodyAttr(bodyTag, name, value){
+  const attr = ` ${name}="${htmlAttrEscape(value)}"`;
+  const re = new RegExp(`\\s${name}="[^"]*"`);
+  return re.test(bodyTag) ? bodyTag.replace(re, attr) : bodyTag.replace('<body', `<body${attr}`);
+}
+function addBodyClass(bodyTag, className){
+  if(/\sclass="[^"]*"/.test(bodyTag)){
+    return bodyTag.replace(/\sclass="([^"]*)"/, (match, classes) => {
+      const list = classes.split(/\s+/).filter(Boolean);
+      if(!list.includes(className)) list.push(className);
+      return ` class="${list.join(' ')}"`;
+    });
+  }
+  return bodyTag.replace('<body', `<body class="${className}"`);
+}
+function markViewerCopyHtml(html){
+  const tab = currentActiveTabName();
+  return html.replace(/<body\b[^>]*>/, bodyTag => {
+    let next = addBodyClass(bodyTag, 'viewer-mode');
+    next = upsertBodyAttr(next, 'data-viewer-copy', 'true');
+    next = upsertBodyAttr(next, 'data-viewer-tab', tab);
+    return next;
+  });
+}
+function closeTransientUiForExport(){
+  el('export-control')?.classList.remove('open');
+  el('table-column-control')?.classList.remove('open');
+  document.querySelectorAll('.modal-backdrop.show').forEach(modal => {
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+  });
+}
+function buildSelfContainedHtml({viewer=false} = {}){
+  closeTransientUiForExport();
   const html = document.documentElement.outerHTML;
   const safeJson = JSON.stringify(tasks).replace(/</g,'\\u003c');
   const safeCats = JSON.stringify(customCategories).replace(/</g,'\\u003c');
   const safeOrder = JSON.stringify(categoryOrder).replace(/</g,'\\u003c');
-  const updated = '<!DOCTYPE html>\n' + html
+  let updated = '<!DOCTYPE html>\n' + html
     .replace(/<script id="initial-data" type="application\/json">[\s\S]*?<\/script>/, '<' + 'script id="initial-data" type="application/json">' + safeJson + '<' + '/script>')
     .replace(/<script id="custom-categories-data" type="application\/json">[\s\S]*?<\/script>/, '<' + 'script id="custom-categories-data" type="application/json">' + safeCats + '<' + '/script>')
     .replace(/<script id="category-order-data" type="application\/json">[\s\S]*?<\/script>/, '<' + 'script id="category-order-data" type="application/json">' + safeOrder + '<' + '/script>');
+  if(viewer) updated = markViewerCopyHtml(updated);
+  return updated;
+}
+function exportHTML(){
+  if(dirty && !saveTableChanges(false)) return;
+  const updated = buildSelfContainedHtml();
   const date = new Date().toISOString().slice(0,10);
   downloadBlob(updated, `Pro-Sol_Schedule_Tool_${date}.html`, 'text/html;charset=utf-8');
 }
+function prepareStaticViewerExportState(){
+  const active = currentActiveTabName();
+  renderTable();
+  renderDashboard();
+  activateTab('gantt');
+  renderGantt();
+  activateTab(active);
+  return active;
+}
+function staticValueNode(text, className='static-value'){
+  const span = document.createElement('span');
+  span.className = className;
+  span.textContent = String(text ?? '').trim() || '—';
+  return span;
+}
+function replaceControlsWithStaticText(root){
+  root.querySelectorAll('textarea').forEach(node => {
+    node.replaceWith(staticValueNode(node.value || node.textContent, 'static-textarea-value'));
+  });
+  root.querySelectorAll('select').forEach(node => {
+    const label = node.selectedOptions?.[0]?.textContent || node.value || '';
+    node.replaceWith(staticValueNode(label));
+  });
+  root.querySelectorAll('input').forEach(node => {
+    if((node.type || '').toLowerCase() === 'file'){
+      node.remove();
+      return;
+    }
+    if((node.type || '').toLowerCase() === 'checkbox'){
+      const field = node.dataset?.field || '';
+      const label = field === 'milestone' ? (node.checked ? '◆' : '—') : (node.checked ? 'Yes' : 'No');
+      node.replaceWith(staticValueNode(label, 'static-check-value'));
+      return;
+    }
+    node.replaceWith(staticValueNode(node.value));
+  });
+}
+function scrubStaticRuntimeAttributes(root){
+  root.querySelectorAll('*').forEach(node => {
+    [...node.attributes].forEach(attr => {
+      const name = attr.name.toLowerCase();
+      const keepData = name === 'data-col' || name === 'data-row-type';
+      if(name.startsWith('on') || name === 'draggable' || name === 'contenteditable' || name === 'tabindex' || (name.startsWith('data-') && !keepData)){
+        node.removeAttribute(attr.name);
+      }
+    });
+  });
+}
+function disableStaticControls(root){
+  root.querySelectorAll('button,input,select,textarea').forEach(control => {
+    control.disabled = true;
+    control.setAttribute('aria-disabled','true');
+    control.setAttribute('tabindex','-1');
+  });
+}
+function sanitizeStaticFragment(root){
+  root.querySelectorAll('script,.modal-backdrop,#tooltip,#toast,.export-menu,.column-menu,input[type="file"]').forEach(node => node.remove());
+  disableStaticControls(root);
+  scrubStaticRuntimeAttributes(root);
+  return root;
+}
+function staticPanelHtml(panelId){
+  const source = el(panelId);
+  if(!source) return '';
+  const clone = source.cloneNode(true);
+  sanitizeStaticFragment(clone);
+  return clone.innerHTML;
+}
+function staticBrandRightHtml(generated){
+  const source = document.querySelector('.brand-right');
+  const clone = source ? source.cloneNode(true) : document.createElement('div');
+  clone.className = 'brand-right';
+  sanitizeStaticFragment(clone);
+  const badge = document.createElement('span');
+  badge.className = 'viewer-badge';
+  badge.textContent = `Read-only viewer · ${generated}`;
+  clone.appendChild(badge);
+  return clone.outerHTML;
+}
+function staticViewerCss(){
+  return `
+.static-viewer-page,
+body.static-viewer{min-height:100vh;background:linear-gradient(180deg,var(--beige-2) 0%,#fff 42%);}
+.static-viewer-page,
+body.static-viewer{
+  -ms-overflow-style:none;
+  scrollbar-width:none;
+}
+.static-viewer-page::-webkit-scrollbar,
+body.static-viewer::-webkit-scrollbar{
+  width:0;
+  height:0;
+  display:none;
+}
+.static-viewer .static-tab-input{position:absolute;opacity:0;pointer-events:none;}
+.static-viewer .static-tabs{display:flex;gap:8px;padding:14px 22px 0;background:transparent;border-bottom:1px solid transparent;}
+.static-viewer .static-tab{padding:10px 16px;background:#fff;border:1px solid var(--line);border-bottom-color:var(--line);border-radius:12px 12px 0 0;color:var(--muted);font-weight:800;font-size:12px;display:flex;align-items:center;gap:8px;cursor:pointer;}
+#static-tab-table:checked ~ .static-tabs label[for="static-tab-table"],
+#static-tab-dashboard:checked ~ .static-tabs label[for="static-tab-dashboard"],
+#static-tab-gantt:checked ~ .static-tabs label[for="static-tab-gantt"],
+#static-tab-guide:checked ~ .static-tabs label[for="static-tab-guide"]{background:var(--evergreen);border-color:var(--evergreen);color:#fff;}
+.static-viewer .static-panel{display:none;}
+#static-tab-table:checked ~ .wrap #static-panel-table,
+#static-tab-dashboard:checked ~ .wrap #static-panel-dashboard,
+#static-tab-gantt:checked ~ .wrap #static-panel-gantt,
+#static-tab-guide:checked ~ .wrap #static-panel-guide{display:block;}
+.static-viewer .brand-right .viewer-badge{display:inline-flex;align-items:center;border:1px solid rgba(0,90,112,.18);background:var(--evergreen-3);color:var(--evergreen);border-radius:999px;padding:8px 12px;font-size:11px;font-weight:900;white-space:nowrap;}
+.static-viewer button:disabled,
+.static-viewer input:disabled,
+.static-viewer select:disabled,
+.static-viewer textarea:disabled{cursor:default!important;opacity:1;}
+.static-viewer input:disabled,
+.static-viewer select:disabled,
+.static-viewer textarea:disabled{-webkit-text-fill-color:var(--ink);color:var(--ink);}
+.static-viewer .btn:disabled{pointer-events:none;}
+.static-viewer .btn.primary:disabled{background:var(--evergreen);border-color:var(--evergreen);color:#fff;}
+.static-viewer .btn.danger:disabled{color:#9E321E;border-color:#E6BAAD;background:#FFF7F4;}
+.static-viewer .schedule-table input:disabled,
+.static-viewer .schedule-table select:disabled,
+.static-viewer .schedule-table textarea:disabled{border-color:transparent;box-shadow:none;}
+.static-viewer .static-value,.static-viewer .static-textarea-value{display:inline-flex;align-items:center;min-height:28px;color:var(--ink);font-weight:700;white-space:pre-wrap;}
+.static-viewer .static-check-value{font-weight:900;color:var(--evergreen);}
+.static-viewer .static-toggle{pointer-events:none;margin-right:6px;}
+.static-viewer .gantt-card{height:auto;min-height:0;display:flex;flex-direction:column;overflow:hidden;}
+.static-viewer .gantt-shell{height:calc(100vh - 260px);min-height:520px;max-height:none;overflow:auto;}
+.static-viewer .schedule-table{width:max-content;}
+@media(max-width:760px){.static-viewer .static-tabs{overflow:auto;padding-left:12px;padding-right:12px;}.static-viewer .brand-right{display:none;}}
+`;
+}
+function buildStaticViewerHtml(activeTab){
+  const styles = [...document.querySelectorAll('style')].map(style => style.textContent || '').join('\n');
+  const fontLinks = [...document.querySelectorAll('link[rel="preconnect"],link[href*="fonts.googleapis.com"],link[href*="fonts.gstatic.com"]')]
+    .map(link => link.outerHTML)
+    .join('\n');
+  const brandLeft = document.querySelector('.brand-left')?.outerHTML || '<div class="brand-left"><div class="title-block"><h1>Pro-Sol Schedule Tool</h1></div></div>';
+  const checked = tab => activeTab === tab ? ' checked' : '';
+  const generated = new Date().toLocaleString('en-AU',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'});
+  const brandRight = staticBrandRightHtml(generated);
+  return `<!DOCTYPE html>
+<html lang="en" class="static-viewer-page">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro-Sol Schedule Viewer Copy</title>
+${fontLinks}
+<style>
+${styles}
+${staticViewerCss()}
+</style>
+</head>
+<body class="static-viewer">
+<div id="app">
+  <header class="brandbar">
+    ${brandLeft}
+    ${brandRight}
+  </header>
+  <input class="static-tab-input" id="static-tab-table" name="static-view-tab" type="radio"${checked('table')}>
+  <input class="static-tab-input" id="static-tab-dashboard" name="static-view-tab" type="radio"${checked('dashboard')}>
+  <input class="static-tab-input" id="static-tab-gantt" name="static-view-tab" type="radio"${checked('gantt')}>
+  <input class="static-tab-input" id="static-tab-guide" name="static-view-tab" type="radio"${checked('guide')}>
+  <nav class="static-tabs" aria-label="Viewer sections">
+    <label class="static-tab" for="static-tab-table">▦ Table / Import</label>
+    <label class="static-tab" for="static-tab-dashboard">▣ Dashboard</label>
+    <label class="static-tab" for="static-tab-gantt">▰ Interactive Gantt</label>
+    <label class="static-tab" for="static-tab-guide">ⓘ Template Guide</label>
+  </nav>
+  <main class="wrap">
+    <section class="static-panel" id="static-panel-table">${staticPanelHtml('panel-table')}</section>
+    <section class="static-panel" id="static-panel-dashboard">${staticPanelHtml('panel-dashboard')}</section>
+    <section class="static-panel" id="static-panel-gantt">${staticPanelHtml('panel-gantt')}</section>
+    <section class="static-panel" id="static-panel-guide">${staticPanelHtml('panel-guide')}</section>
+  </main>
+</div>
+</body>
+</html>`;
+}
+function exportViewerCopy(){
+  if(dirty && !saveTableChanges(false)) return;
+  const activeTab = prepareStaticViewerExportState();
+  const updated = buildStaticViewerHtml(activeTab);
+  const date = new Date().toISOString().slice(0,10);
+  downloadBlob(updated, `Pro-Sol_Schedule_Viewer_Copy_${date}.html`, 'text/html;charset=utf-8');
+  toast('Static viewer copy generated');
+}
+function blockViewerInteraction(ev){
+  if(!VIEWER_MODE) return;
+  const closest = ev.target?.closest?.bind(ev.target);
+  if(closest && closest('.tab')) return;
+  const interactive = closest ? closest('button,input,select,textarea,a,form,[role="button"],[data-action],[data-edit-id],[data-edit-category],[data-toggle-key],.table-toggle,.drag-grip') : null;
+  if(interactive){
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+  }
+}
+function applyViewerMode(){
+  document.body.classList.add('viewer-mode');
+  document.querySelectorAll('.export-control.open,.column-control.open').forEach(node => node.classList.remove('open'));
+  document.querySelectorAll('.modal-backdrop.show').forEach(modal => {
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+  });
+  document.querySelectorAll('[draggable="true"]').forEach(node => {
+    node.draggable = false;
+    node.removeAttribute('draggable');
+  });
+  document.querySelectorAll('button:not(.tab),select,input,textarea').forEach(control => {
+    control.disabled = true;
+    control.setAttribute('aria-disabled','true');
+    control.tabIndex = -1;
+  });
+  ['click','dblclick','change','input','submit','keydown','mousedown','touchstart'].forEach(type => {
+    document.addEventListener(type, blockViewerInteraction, true);
+  });
+  updateStatus('Viewer copy - read only');
+}
 function bindEvents(){
+  if(VIEWER_MODE) return;
   initColumnControls();
   initDateFilters();
   initActivityModal();
@@ -4968,6 +5254,7 @@ function bindEvents(){
     e.target.value = '';
   });
   el('btn-export-html').addEventListener('click', exportHTML);
+  el('btn-export-viewer')?.addEventListener('click', exportViewerCopy);
   el('g-expand-all')?.addEventListener('click', expandAllGanttWBS);
   el('g-collapse-all')?.addEventListener('click', collapseAllGanttWBS);
   ['g-show-deps','g-selected-links','g-cp-only','g-category','g-zoom'].forEach(id => el(id).addEventListener('change', renderGantt));
@@ -4975,20 +5262,25 @@ function bindEvents(){
 }
 
 try{
-  pruneUnusedCustomCategories(true);
-  const startupShifted = applySuccessorLogicFromPrevious([]);
-  if(startupShifted) persist();
-  initTabs();
-  bindEvents();
-  renderTable();
-  renderGantt();
-  renderDashboard();
-  const startupStatus = startupShifted ? `Loaded and aligned ${startupShifted} successor activit${startupShifted===1?'y':'ies'}` : (loadStoredTasks() ? 'Loaded saved browser data' : 'Ready');
-  if(cloudSyncConfigured()){
-    updateStatus(`${startupStatus}; loading shared schedule...`);
-    loadCloudSchedule({silent:true});
-  }else{
-    updateStatus(startupStatus);
+  if(VIEWER_MODE){
+    initTabs();
+    applyViewerMode();
+  } else {
+    pruneUnusedCustomCategories(true);
+    const startupShifted = applySuccessorLogicFromPrevious([]);
+    if(startupShifted) persist();
+    initTabs();
+    bindEvents();
+    renderTable();
+    renderGantt();
+    renderDashboard();
+    const startupStatus = startupShifted ? `Loaded and aligned ${startupShifted} successor activit${startupShifted===1?'y':'ies'}` : (loadStoredTasks() ? 'Loaded saved browser data' : 'Ready');
+    if(cloudSyncConfigured()){
+      updateStatus(`${startupStatus}; loading shared schedule...`);
+      loadCloudSchedule({silent:true});
+    }else{
+      updateStatus(startupStatus);
+    }
   }
 }catch(err){
   console.error(err);
