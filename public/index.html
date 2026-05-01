@@ -2,7 +2,7 @@
 <html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pro-Sol Schedule Tool v2.47</title>
+<title>Pro-Sol Schedule Tool v2.49</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
@@ -34,11 +34,24 @@ button{border:none;cursor:pointer;}
 #app{min-height:100vh;display:flex;flex-direction:column;}
 .brandbar{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:16px 22px;background:var(--white);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20;box-shadow:0 8px 20px rgba(0,0,0,.04);}
 .brand-left{display:flex;align-items:center;gap:18px;min-width:0;}
+.title-block{min-width:0;}
 .logo-card{width:132px;min-width:132px;height:76px;border:1px solid var(--line);border-radius:12px;background:var(--white);display:flex;align-items:center;justify-content:center;overflow:hidden;}
 .logo-card img{max-width:114px;max-height:64px;display:block;}
 .title-block h1{font-size:24px;line-height:1.1;margin:0;color:var(--evergreen);letter-spacing:-.02em;font-weight:800;}
 .title-block p{margin:6px 0 0;color:var(--muted);font-size:12.5px;}
-.brand-right{display:flex;align-items:center;gap:12px;}
+.client-brand{display:flex;align-items:center;justify-content:center;min-width:168px;}
+.client-logo-card{width:168px;min-width:168px;height:76px;border:1px dashed var(--line);border-radius:12px;background:var(--beige-2);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;padding:8px;text-align:center;position:relative;transition:border-color .15s,background .15s,box-shadow .15s;}
+.client-logo-card:hover,.client-logo-card:focus-within{border-color:var(--evergreen);background:#fff;box-shadow:0 8px 22px rgba(0,90,112,.08);}
+.client-logo-card.has-logo{border-style:solid;background:#fff;}
+.client-logo-card img{max-width:142px;max-height:54px;display:none;}
+.client-logo-card.has-logo img{display:block;}
+.client-logo-card input{display:none;}
+.client-logo-empty{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--muted);font-size:10px;line-height:1.25;font-weight:800;text-transform:uppercase;letter-spacing:.05em;}
+.client-logo-empty strong{font-size:11px;color:var(--evergreen);}
+.client-logo-card.has-logo .client-logo-empty{display:none;}
+.client-logo-edit{position:absolute;right:7px;top:7px;width:24px;height:24px;border-radius:999px;background:var(--evergreen);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:900;line-height:1;box-shadow:0 6px 14px rgba(0,90,112,.22);opacity:0;transform:translateY(-2px);transition:opacity .15s,transform .15s;}
+.client-logo-card.has-logo:hover .client-logo-edit,.client-logo-card.has-logo:focus-within .client-logo-edit{opacity:1;transform:translateY(0);}
+.brand-right{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
 .qr-card{height:76px;display:flex;align-items:center;gap:9px;border:1px solid var(--line);background:var(--beige);border-radius:12px;padding:8px 10px;color:var(--evergreen);}
 .qr-card img{width:56px;height:56px;border-radius:6px;display:block;}
 .qr-card span{font-size:10px;line-height:1.25;font-weight:700;max-width:72px;}
@@ -528,13 +541,19 @@ body.table-active #panel-table .card{flex:1 1 auto;min-height:0;display:flex;fle
 body.table-active #panel-table .toolbar{flex:0 0 auto;}
 body.table-active #panel-table .table-shell{flex:1 1 auto;min-height:0;max-height:none!important;overflow:auto;}
 
-@media(max-width:950px){
-  .brandbar{align-items:flex-start;flex-direction:column;}
-  .brand-right{width:100%;justify-content:space-between;}
+@media(max-width:1180px){
+  .brandbar{align-items:flex-start;flex-wrap:wrap;}
+  .brand-left{flex:1 1 100%;}
+  .brand-right{flex:1 1 100%;width:100%;justify-content:flex-start;}
   .metrics{grid-template-columns:repeat(2,minmax(0,1fr));}
   .guide{grid-template-columns:1fr;}
 }
 @media(max-width:640px){
+  .brandbar{flex-direction:column;flex-wrap:nowrap;}
+  .brand-left{align-items:flex-start;}
+  .brand-right{width:100%;justify-content:flex-start;}
+  .client-logo-card{width:156px;min-width:156px;height:66px;}
+  .client-logo-card img{max-width:132px;max-height:46px;}
   .metrics{grid-template-columns:1fr;}
   .qr-card span{display:none;}
   .tabs{overflow:auto;}
@@ -554,6 +573,14 @@ body.table-active #panel-table .table-shell{flex:1 1 auto;min-height:0;max-heigh
     </div>
     <div class="brand-right">
       <div class="qr-card"><img alt="Pro-Sol QR code" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOgAAADoCAIAAABqyz8vAAAEO0lEQVR4nO3dMU5cMRRA0RCxgSyVlbBGSqrZQoqkdWFky74z59Tw+cxcuXiy7LfH99cvqPl9+gXgJ4RLknBJEi5JwiVJuCQJlyThkiRckoRLknBJEi5JwiVJuCQJl6T32V/48/G54z2We3x+TP386P8aPWf2c5h9zuz7jzzr92XFJUm4JAmXJOGSJFyShEuScEmanuOOrJo7zpqdU+6em87+3VXPmX3/yvc1YsUlSbgkCZck4ZIkXJKES5JwSVo2xx1ZNberzx137+tdpfJ9WXFJEi5JwiVJuCQJlyThkiRckrbPcStOzWt3n//wrKy4JAmXJOGSJFyShEuScEkSLkkvN8c9NWdlLSsuScIlSbgkCZck4ZIkXJKES9L2OW5ln+iqcw9WPX/087s/z8r3ZcUlSbgkCZck4ZIkXJKES5JwSVo2x63sQ919T9juz8G+4X+suCQJlyThkiRckoRLknBJEi5J03Pcyn7NVZ71frU6Ky5JwiVJuCQJlyThkiRckoRL0tvj+2vqF267Z2v2fW7bh7rqc5v9v07t3131/1pxSRIuScIlSbgkCZck4ZIkXJKWzXFHVs0Lbzs3oD4nPvWe5ri8NOGSJFyShEuScEkSLknCJWn7HHdk91x29/7gyhx091x81Zx49n2suCQJlyThkiRckoRLknBJEi5Jy+45G9m9H3T2+c86Px793VPnXez+3q24JAmXJOGSJFyShEuScEkSLknL5riz88JV89fbzmGonx88ctt9aVZckoRLknBJEi5JwiVJuCQJl6TMuQqzTp2Pu0rlHOJTz7fikiRckoRLknBJEi5JwiVJuCQd24976rxV5y387Dkjp+bHVlyShEuScEkSLknCJUm4JAmXpO3n487OBSv3co3sntfedt7wqc/ZikuScEkSLknCJUm4JAmXJOGStH2OO3LbPtHZ56yaT9/2d0/tk55lxSVJuCQJlyThkiRckoRLknBJmj4ft+62cwNO3es2cts9bSNWXJKES5JwSRIuScIlSbgkCZek6f24u+8PW2U0dzw17zw1H71tLut8XF6acEkSLknCJUm4JAmXJOGSdOyes1VWzZVP3aO2ey5+2/fiXAVemnBJEi5JwiVJuCQJlyThknTdPWcj9fvDds93T+2TPnWPnRWXJOGSJFyShEuScEkSLknCJenYPWe3WTVfnJ3L3nZe76xT+4ytuCQJlyThkiRckoRLknBJEi5J5rj/nZpH7rb7PODZv7vq87TikiRckoRLknBJEi5JwiVJuCRtn+OeOp91ld33lu0+P2HVPPW279GKS5JwSRIuScIlSbgkCZck4ZK0bI5b2be66pza3ftNd7/PbeczzLLikiRckoRLknBJEi5JwiVJuCS9Pb6/Tr8DTLPikiRckoRLknBJEi5JwiVJuCQJlyThkiRckoRLknBJEi5JwiVJuCT9BVtLhd2u5qAIAAAAAElFTkSuQmCC"><span>Scan for Pro-Sol</span></div>
+      <div class="client-brand" id="client-brand">
+        <label class="client-logo-card" id="client-logo-card" title="Upload or replace client logo">
+          <input id="file-client-logo" type="file" accept="image/*">
+          <img id="client-logo-img" alt="Client logo">
+          <span class="client-logo-empty"><strong>Client Logo</strong>Upload image</span>
+          <span class="client-logo-edit" aria-hidden="true">&#9998;</span>
+        </label>
+      </div>
       <button class="btn primary" id="btn-export-html">⬇ Save Tool</button>
       <button class="btn" id="btn-export-viewer" type="button">Generate Viewer Copy</button>
     </div>
@@ -1075,6 +1102,7 @@ const MS_PROJECT_TASK_HEADERS = [
 const STORE_KEY = "prosol_schedule_tool_tasks_v228_revA";
 const CATEGORY_STORE_KEY = "prosol_schedule_tool_custom_categories_v228_revA";
 const CATEGORY_ORDER_STORE_KEY = "prosol_schedule_tool_category_order_v228_revA";
+const CLIENT_LOGO_STORE_KEY = "prosol_schedule_tool_client_logo_v49";
 const VIEWER_MODE = document.body?.dataset.viewerCopy === 'true';
 const CLOUD_CONFIG = window.PRO_SOL_DB_CONFIG || {};
 const CLOUD_SCHEDULE_SLUG = String(CLOUD_CONFIG.scheduleSlug || 'default').trim() || 'default';
@@ -2509,6 +2537,7 @@ function saveTableChanges(showMsg = true, options = {}){
   tasks = newTasks;
   const shifted = applySuccessorLogicFromPrevious(previousTasks);
   persist();
+  syncCloudAfterLocalSave(false);
   renderTable();
   renderGantt();
   renderDashboard();
@@ -2772,7 +2801,6 @@ function saveEditedActivity(){
   if(t.parentId){ tableCollapsedKeys.delete(rowKeyForActivity(t.parentId)); ganttCollapsedKeys.delete(rowKeyForActivity(t.parentId)); }
   const shifted = applySuccessorLogicFromPrevious(previousTasks);
   persist();
-  syncCloudAfterLocalSave(false);
   renderTable();
   renderGantt();
   renderDashboard();
@@ -2872,7 +2900,7 @@ function handleAddActivitySubmit(ev){
     if(!finalName) return;
     selectedId = null;
     persist();
-  syncCloudAfterLocalSave(false);
+    syncCloudAfterLocalSave(false);
     renderTable();
     renderGantt();
     renderDashboard();
@@ -2893,7 +2921,7 @@ function handleAddActivitySubmit(ev){
     ganttCollapsedKeys.delete(`cat:${finalCat}`);
     selectedId = null;
     persist();
-  syncCloudAfterLocalSave(false);
+    syncCloudAfterLocalSave(false);
     renderTable();
     renderGantt();
     closeAddActivityModal();
@@ -4113,7 +4141,7 @@ async function importFile(file){
     pruneUnusedCustomCategories(false);
     selectedId = null;
     persist();
-  syncCloudAfterLocalSave(false);
+    syncCloudAfterLocalSave(false);
     renderTable();
     renderGantt();
     toast(`Imported ${tasks.length} activities`);
@@ -4140,8 +4168,60 @@ function initExportMenu(){
 function getLogoData(){
   return document.querySelector('.logo-card img')?.src || '';
 }
+function getClientLogoData(){
+  return document.querySelector('.client-logo-card.has-logo img')?.src || '';
+}
 function getQRData(){
   return document.querySelector('.qr-card img')?.src || '';
+}
+function setClientLogo(src='', shouldPersist=false){
+  const card = el('client-logo-card');
+  const img = el('client-logo-img');
+  const hasLogo = Boolean(src);
+  if(img){
+    if(hasLogo) img.src = src;
+    else img.removeAttribute('src');
+  }
+  card?.classList.toggle('has-logo', hasLogo);
+  if(shouldPersist && !VIEWER_MODE){
+    try{
+      if(hasLogo) localStorage.setItem(CLIENT_LOGO_STORE_KEY, src);
+      else localStorage.removeItem(CLIENT_LOGO_STORE_KEY);
+    }catch(e){}
+  }
+}
+function loadClientLogo(){
+  if(VIEWER_MODE) return;
+  const embeddedLogo = getClientLogoData();
+  if(embeddedLogo){
+    setClientLogo(embeddedLogo, false);
+    return;
+  }
+  try{
+    const stored = localStorage.getItem(CLIENT_LOGO_STORE_KEY);
+    if(stored) setClientLogo(stored, false);
+  }catch(e){}
+}
+function initClientLogoUpload(){
+  const input = el('file-client-logo');
+  if(!input) return;
+  input.addEventListener('change', ev => {
+    const file = ev.target.files?.[0];
+    ev.target.value = '';
+    if(!file) return;
+    if(!file.type || !file.type.startsWith('image/')){
+      alert('Please choose an image file for the client logo.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setClientLogo(String(reader.result || ''), true);
+      updateStatus('Client logo updated');
+      toast('Client logo uploaded');
+    };
+    reader.onerror = () => alert('Client logo upload failed. Please try a different image.');
+    reader.readAsDataURL(file);
+  });
 }
 function scheduleStats(){
   const valid = tasks.filter(t => t.start && t.end);
@@ -4839,6 +4919,8 @@ function staticBrandRightHtml(generated){
   const source = document.querySelector('.brand-right');
   const clone = source ? source.cloneNode(true) : document.createElement('div');
   clone.className = 'brand-right';
+  if(!getClientLogoData()) clone.querySelector('.client-brand')?.remove();
+  clone.querySelectorAll('.client-logo-edit').forEach(node => node.remove());
   sanitizeStaticFragment(clone);
   const badge = document.createElement('span');
   badge.className = 'viewer-badge';
@@ -4989,6 +5071,7 @@ function bindEvents(){
   initActivityModal();
   initWbsOrderModal();
   initExportMenu();
+  initClientLogoUpload();
   initCloudSync();
   el('btn-save-table').addEventListener('click', () => saveTableChanges(true));
   el('btn-add-row').addEventListener('click', openAddActivityModal);
@@ -5029,6 +5112,7 @@ try{
     pruneUnusedCustomCategories(true);
     const startupShifted = applySuccessorLogicFromPrevious([]);
     if(startupShifted) persist();
+    loadClientLogo();
     initTabs();
     bindEvents();
     renderTable();
