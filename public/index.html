@@ -85,6 +85,10 @@ body.viewer-mode textarea:disabled{opacity:1;color:var(--ink);-webkit-text-fill-
 body.viewer-mode .schedule-table input:disabled,
 body.viewer-mode .schedule-table select:disabled,
 body.viewer-mode .schedule-table textarea:disabled{border-color:transparent;box-shadow:none;}
+body.viewer-mode .viewer-control-enabled{cursor:pointer!important;}
+body.viewer-mode input.viewer-control-enabled,
+body.viewer-mode select.viewer-control-enabled,
+body.viewer-mode textarea.viewer-control-enabled{background:#fff;border-color:var(--line);box-shadow:inset 0 1px 0 rgba(0,0,0,.02);}
 body.viewer-mode .drag-grip{display:none;}
 .status{font-size:11px;color:var(--muted);font-weight:700;}
 .status strong{color:var(--evergreen);}
@@ -582,7 +586,7 @@ body.table-active #panel-table .table-shell{flex:1 1 auto;min-height:0;max-heigh
         </label>
       </div>
       <button class="btn primary" id="btn-export-html">⬇ Save Tool</button>
-      <button class="btn" id="btn-export-viewer" type="button">Generate Viewer Copy</button>
+      <button class="btn" id="btn-export-viewer" type="button" title="Download a read-only viewer with filters enabled">Generate Interactive Viewer</button>
     </div>
   </header>
 
@@ -870,7 +874,7 @@ body.table-active #panel-table .table-shell{flex:1 1 auto;min-height:0;max-heigh
             <li>Use the <strong>Columns</strong> menu in the Table / Import tab to hide or show optional fields. MS Project compatibility fields are included there but hidden by default.</li>
           </ul>
           <h3>Save behaviour</h3>
-          <p>Click <strong>Save Table Changes</strong> after editing the table. The Gantt redraws from the table data, updates dependency arrows from the predecessor and relationship columns, and stores the latest version in the browser. Use <strong>Save Tool</strong> to export a self-contained HTML copy with the current schedule embedded. Use <strong>Generate Viewer Copy</strong> to export a read-only HTML copy that keeps the current view visible while disabling editing, filters, imports, exports, zoom and other controls. Use the <strong>Dashboard</strong> tab for the recommended executive schedule visuals: KPI cards, progress health, category workload, milestone timeline, critical path watchlist and upcoming 90-day activities. Use <strong>Export</strong> to download Excel, PDF, or PowerPoint outputs from the current schedule. PDF and PowerPoint exports include a landscape snapshot of the current Interactive Gantt view.</p>
+          <p>Click <strong>Save Table Changes</strong> after editing the table. The Gantt redraws from the table data, updates dependency arrows from the predecessor and relationship columns, and stores the latest version in the browser. Use <strong>Save Tool</strong> to export a self-contained HTML copy with the current schedule embedded. Use <strong>Generate Interactive Viewer</strong> to export a read-only HTML copy that keeps the schedule browsable while disabling editing, imports, exports and save controls. Viewer tabs, filters, zoom and expand/collapse controls stay functional. Use the <strong>Dashboard</strong> tab for the recommended executive schedule visuals: KPI cards, progress health, category workload, milestone timeline, critical path watchlist and upcoming 90-day activities. Use <strong>Export</strong> to download Excel, PDF, or PowerPoint outputs from the current schedule. PDF and PowerPoint exports include a landscape snapshot of the current Interactive Gantt view.</p>
         </div>
         <div>
           <table class="template-table">
@@ -1279,8 +1283,21 @@ const explicitResourceNamesForTask = t => firstText(t?.resourceNames, t?.resourc
 const resourceNamesForTask = t => explicitResourceNamesForTask(t) || firstText(t?.resp);
 tasks = normalizeTasks(loadStoredTasks() || initialTasks.map(t => ({...t})));
 ensureProjectMilestonesDefault();
+function readBodyJsonData(key, fallback){
+  try{
+    const raw = document.body?.dataset?.[key];
+    if(!raw) return fallback;
+    const parsed = JSON.parse(raw);
+    return parsed ?? fallback;
+  }catch(e){ return fallback; }
+}
+function viewerDateFilter(scope){
+  const key = scope === 'gantt' ? 'viewerGanttDateFilter' : 'viewerTableDateFilter';
+  const parsed = readBodyJsonData(key, null);
+  return {...DEFAULT_DATE_FILTER, ...(parsed || {})};
+}
 function loadDateFilterState(){
-  if(VIEWER_MODE) return {table:{...DEFAULT_DATE_FILTER}, gantt:{...DEFAULT_DATE_FILTER}};
+  if(VIEWER_MODE) return {table:viewerDateFilter('table'), gantt:viewerDateFilter('gantt')};
   try{
     const raw = localStorage.getItem(DATE_FILTER_STORE_KEY);
     const data = raw ? JSON.parse(raw) : {};
@@ -1321,7 +1338,7 @@ function taskMatchesDateFilter(t, scope){ const r=dateFilterRange(scope==='gantt
 function applyDateFilterToList(list, scope){ return (list||[]).filter(t=>taskMatchesDateFilter(t, scope)); }
 function updateDateFilterUI(){ const ts=el('table-date-filter'), gs=el('g-date-filter'); if(ts) ts.value=tableDateFilter.mode||'all'; if(gs) gs.value=ganttDateFilter.mode||'all'; const tb=el('table-date-filter-summary'), gb=el('g-date-filter-summary'); if(tb){ tb.textContent=dateFilterLabel(tableDateFilter); tb.classList.toggle('active', tableDateFilter.mode!=='all'); } if(gb){ gb.textContent=dateFilterLabel(ganttDateFilter); gb.classList.toggle('active', ganttDateFilter.mode!=='all'); } }
 function setDateFilter(scope, filter){ const clean={...DEFAULT_DATE_FILTER,...(filter||{})}; if(scope==='gantt') ganttDateFilter=clean; else tableDateFilter=clean; persistDateFilterState(); updateDateFilterUI(); if(scope==='gantt') renderGantt(); else renderTable(); }
-function openDateFilterModal(scope){ activeDateFilterScope=scope; const filter=scope==='gantt'?ganttDateFilter:tableDateFilter; const modal=el('date-filter-modal'), grid=el('date-filter-preset-grid'); if(!modal||!grid) return; grid.innerHTML=DATE_FILTER_OPTIONS.map(o=>`<label><input type="radio" name="date-filter-preset" value="${esc(o.value)}" ${o.value===filter.mode?'checked':''}>${esc(o.label)}</label>`).join(''); const r=dateFilterRange(filter); el('date-filter-start').value=filter.mode==='custom'?(filter.start||''):(r?.start||''); el('date-filter-end').value=filter.mode==='custom'?(filter.end||''):(r?.end||''); modal.classList.add('show'); modal.setAttribute('aria-hidden','false'); }
+function openDateFilterModal(scope){ activeDateFilterScope=scope; const filter=scope==='gantt'?ganttDateFilter:tableDateFilter; const modal=el('date-filter-modal'), grid=el('date-filter-preset-grid'); if(!modal||!grid) return; grid.innerHTML=DATE_FILTER_OPTIONS.map(o=>`<label><input type="radio" name="date-filter-preset" value="${esc(o.value)}" ${o.value===filter.mode?'checked':''}>${esc(o.label)}</label>`).join(''); const r=dateFilterRange(filter); el('date-filter-start').value=filter.mode==='custom'?(filter.start||''):(r?.start||''); el('date-filter-end').value=filter.mode==='custom'?(filter.end||''):(r?.end||''); modal.classList.add('show'); modal.setAttribute('aria-hidden','false'); lockViewerReadonlyControls(modal); }
 function closeDateFilterModal(){ const modal=el('date-filter-modal'); if(modal){ modal.classList.remove('show'); modal.setAttribute('aria-hidden','true'); } activeDateFilterScope=null; }
 function initDateFilters(){
   ['table-date-filter','g-date-filter'].forEach(id=>{ const select=el(id); if(select) select.innerHTML=DATE_FILTER_OPTIONS.map(o=>`<option value="${esc(o.value)}">${esc(o.label)}</option>`).join(''); });
@@ -1737,11 +1754,12 @@ function initColumnControls(){
 }
 
 function openWbsOrderModal(){
-  saveTableChanges(false);
+  if(!VIEWER_MODE) saveTableChanges(false);
   wbsOrderWorking = catList().filter(categoryHasContent);
   renderWbsOrderList();
   el('wbs-order-modal')?.classList.add('show');
   el('wbs-order-modal')?.setAttribute('aria-hidden','false');
+  lockViewerReadonlyControls(el('wbs-order-modal'));
 }
 function closeWbsOrderModal(){
   el('wbs-order-modal')?.classList.remove('show');
@@ -1771,6 +1789,7 @@ function renderWbsOrderList(){
     moveWbsOrderItem(idx, btn.dataset.orderAction === 'up' ? -1 : 1);
   }));
   initWbsOrderDragDrop(list);
+  lockViewerReadonlyControls(list);
 }
 function moveWbsOrderItem(idx, dir){
   const next = idx + dir;
@@ -2125,6 +2144,7 @@ function renderTable(){
   buildCategoryFilter();
   renderColumnMenu();
   applyColumnVisibility();
+  lockViewerReadonlyControls(tbody);
 }
 
 function refreshRowDuration(tr){
@@ -4794,7 +4814,7 @@ function currentActiveTabName(){
   return activePanel.replace(/^panel-/,'') || 'table';
 }
 function htmlAttrEscape(value){
-  return String(value ?? '').replace(/[&"]/g, c => ({'&':'&amp;','"':'&quot;'}[c]));
+  return String(value ?? '').replace(/[&"<>]/g, c => ({'&':'&amp;','"':'&quot;','<':'&lt;','>':'&gt;'}[c]));
 }
 function upsertBodyAttr(bodyTag, name, value){
   const attr = ` ${name}="${htmlAttrEscape(value)}"`;
@@ -4813,10 +4833,26 @@ function addBodyClass(bodyTag, className){
 }
 function markViewerCopyHtml(html){
   const tab = currentActiveTabName();
+  const filters = {
+    table: tableDateFilter || {...DEFAULT_DATE_FILTER},
+    gantt: ganttDateFilter || {...DEFAULT_DATE_FILTER},
+  };
+  const controls = {
+    showDeps: !!el('g-show-deps')?.checked,
+    selectedLinksOnly: !!el('g-selected-links')?.checked,
+    cpOnly: !!el('g-cp-only')?.checked,
+    category: el('g-category')?.value || 'all',
+    zoom: el('g-zoom')?.value || 'fit',
+    tableCollapsed: [...tableCollapsedKeys],
+    ganttCollapsed: [...ganttCollapsedKeys],
+  };
   return html.replace(/<body\b[^>]*>/, bodyTag => {
     let next = addBodyClass(bodyTag, 'viewer-mode');
     next = upsertBodyAttr(next, 'data-viewer-copy', 'true');
     next = upsertBodyAttr(next, 'data-viewer-tab', tab);
+    next = upsertBodyAttr(next, 'data-viewer-table-date-filter', JSON.stringify(filters.table));
+    next = upsertBodyAttr(next, 'data-viewer-gantt-date-filter', JSON.stringify(filters.gantt));
+    next = upsertBodyAttr(next, 'data-viewer-controls', JSON.stringify(controls));
     return next;
   });
 }
@@ -5027,16 +5063,87 @@ ${staticViewerCss()}
 }
 function exportViewerCopy(){
   if(dirty && !saveTableChanges(false)) return;
-  const activeTab = prepareStaticViewerExportState();
-  const updated = buildStaticViewerHtml(activeTab);
+  const updated = buildSelfContainedHtml({viewer:true});
   const date = new Date().toISOString().slice(0,10);
   downloadBlob(updated, `Pro-Sol_Schedule_Viewer_Copy_${date}.html`, 'text/html;charset=utf-8');
-  toast('Static viewer copy generated');
+  toast('Interactive viewer copy generated with filters enabled');
+  updateStatus('Generated read-only viewer copy with filters enabled');
+}
+const VIEWER_ALLOWED_CONTROL_SELECTOR = [
+  '.tab',
+  '.table-toggle',
+  '#btn-table-expand-all',
+  '#btn-table-collapse-all',
+  '.wbs-order-trigger',
+  '#wbs-order-close',
+  '#wbs-order-cancel',
+  '#wbs-order-apply',
+  '#wbs-order-reset',
+  '#wbs-order-list [data-order-action]',
+  '#table-date-filter',
+  '#table-date-filter-clear',
+  '#g-show-deps',
+  '#g-selected-links',
+  '#g-cp-only',
+  '#g-category',
+  '#g-date-filter',
+  '#g-date-filter-clear',
+  '#g-zoom',
+  '#g-expand-all',
+  '#g-collapse-all',
+  '#date-filter-close',
+  '#date-filter-cancel',
+  '#date-filter-clear-modal',
+  '#date-filter-apply',
+  '#date-filter-start',
+  '#date-filter-end',
+  '#date-filter-preset-grid input[name="date-filter-preset"]',
+].join(',');
+function viewerAllowsInteraction(target){
+  return !!target?.closest?.(VIEWER_ALLOWED_CONTROL_SELECTOR);
+}
+function lockViewerReadonlyControls(root=document){
+  if(!VIEWER_MODE) return;
+  root.querySelectorAll('button:not(.tab),select,input,textarea').forEach(control => {
+    if(viewerAllowsInteraction(control)){
+      control.removeAttribute('aria-disabled');
+      control.removeAttribute('tabindex');
+      control.classList.add('viewer-control-enabled');
+      return;
+    }
+    control.disabled = true;
+    control.setAttribute('aria-disabled','true');
+    control.tabIndex = -1;
+    control.classList.remove('viewer-control-enabled');
+  });
+}
+function applyViewerInitialControlState(){
+  if(!VIEWER_MODE) return;
+  const state = readBodyJsonData('viewerControls', {});
+  if(Array.isArray(state.tableCollapsed)) tableCollapsedKeys = new Set(state.tableCollapsed);
+  if(Array.isArray(state.ganttCollapsed)) ganttCollapsedKeys = new Set(state.ganttCollapsed);
+  const setChecked = (id, value) => { const node = el(id); if(node) node.checked = !!value; };
+  const setValue = (id, value) => { const node = el(id); if(!node || value === undefined || value === null) return; node.value = String(value); };
+  setChecked('g-show-deps', state.showDeps !== false);
+  setChecked('g-selected-links', !!state.selectedLinksOnly);
+  setChecked('g-cp-only', !!state.cpOnly);
+  setValue('g-category', state.category || 'all');
+  setValue('g-zoom', state.zoom || 'fit');
+}
+function bindViewerEvents(){
+  initDateFilters();
+  initWbsOrderModal();
+  el('btn-table-expand-all')?.addEventListener('click', expandAllTableWBS);
+  el('btn-table-collapse-all')?.addEventListener('click', collapseAllTableWBS);
+  el('g-expand-all')?.addEventListener('click', expandAllGanttWBS);
+  el('g-collapse-all')?.addEventListener('click', collapseAllGanttWBS);
+  ['g-show-deps','g-selected-links','g-cp-only','g-category','g-zoom'].forEach(id => el(id)?.addEventListener('change', renderGantt));
+  window.addEventListener('resize', renderGantt);
 }
 function blockViewerInteraction(ev){
   if(!VIEWER_MODE) return;
   const closest = ev.target?.closest?.bind(ev.target);
-  if(closest && closest('.tab')) return;
+  if(viewerAllowsInteraction(ev.target)) return;
   const interactive = closest ? closest('button,input,select,textarea,a,form,[role="button"],[data-action],[data-edit-id],[data-edit-category],[data-toggle-key],.table-toggle,.drag-grip') : null;
   if(interactive){
     ev.preventDefault();
@@ -5054,11 +5161,7 @@ function applyViewerMode(){
     node.draggable = false;
     node.removeAttribute('draggable');
   });
-  document.querySelectorAll('button:not(.tab),select,input,textarea').forEach(control => {
-    control.disabled = true;
-    control.setAttribute('aria-disabled','true');
-    control.tabIndex = -1;
-  });
+  lockViewerReadonlyControls();
   ['click','dblclick','change','input','submit','keydown','mousedown','touchstart'].forEach(type => {
     document.addEventListener(type, blockViewerInteraction, true);
   });
@@ -5107,6 +5210,11 @@ function bindEvents(){
 try{
   if(VIEWER_MODE){
     initTabs();
+    applyViewerInitialControlState();
+    bindViewerEvents();
+    renderTable();
+    renderGantt();
+    renderDashboard();
     applyViewerMode();
   } else {
     pruneUnusedCustomCategories(true);
